@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  ADMIN
+  VENDEDOR
+}
+
+enum OrderStatus {
+  PENDIENTE
+  CONFIRMADO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum SaleChannel {
+  FISICA
+  WEB
+}
+
+enum SaleStatus {
+  COMPLETADA
+  ANULADA
+}
+
+enum CashStatus {
+  ABIERTA
+  CERRADA
+}
+
+enum StockMoveType {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+enum DiscountType {
+  PORCENTAJE
+  MONTO
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(VENDEDOR)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  sales     Sale[]
+  registers CashRegister[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  sku         String?     @unique
+  name        String
+  brand       String
+  slug        String      @unique
+  description String
+  notes       String
+  gender      String      @default("Unisex")
+  cost        Float       @default(0)   // costo de compra (para margen)
+  price       Float
+  compareAt   Float?
+  stock       Int         @default(0)
+  lowStock    Int         @default(3)
+  imageUrl    String
+  featured    Boolean     @default(false)
+  active      Boolean     @default(true)
+  categoryId  String?
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+  saleItems   SaleItem[]
+  stockMoves  StockMovement[]
+  purchaseItems PurchaseItem[]
+}
+
+// (6) Categorías / Marcas para organizar el catálogo
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  kind      String    @default("categoria") // "categoria" | "marca"
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+// (1) Proveedores
+model Supplier {
+  id        String     @id @default(cuid())
+  name      String
+  contact   String     @default("")
+  phone     String     @default("")
+  email     String     @default("")
+  notes     String     @default("")
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  purchases Purchase[]
+}
+
+// (1) Compras de mercadería (reabastecimiento)
+model Purchase {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  supplierId  String
+  supplier    Supplier       @relation(fields: [supplierId], references: [id])
+  total       Float          @default(0)
+  notes       String         @default("")
+  createdAt   DateTime       @default(now())
+  items       PurchaseItem[]
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  productId  String
+  name       String
+  cost       Float
+  quantity   Int
+  total      Float
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+// (2) Kardex: historial de movimientos de inventario
+model StockMovement {
+  id        String        @id @default(cuid())
+  productId String
+  product   Product       @relation(fields: [productId], references: [id])
+  type      StockMoveType
+  quantity  Int           // positivo entrada, negativo salida
+  reason    String        @default("")
+  balance   Int           @default(0) // stock resultante tras el movimiento
+  createdAt DateTime      @default(now())
+}
+
+// (4) Clientes (CRM básico)
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String   @default("")
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+}
+
+// (5) Cupones / Promociones
+model Coupon {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  type         DiscountType @default(PORCENTAJE)
+  value        Float        // % o monto según type
+  minPurchase  Float        @default(0)
+  active       Boolean      @default(true)
+  usageLimit   Int          @default(0) // 0 = ilimitado
+  usedCount    Int          @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime     @default(now())
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  code         String      @unique
+  customerName String
+  phone        String
+  department   String
+  province     String      @default("")
+  district     String
+  address      String
+  reference    String?
+  notes        String?
+  total        Float
+  status       OrderStatus @default(PENDIENTE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// Caja: apertura y cierre por vendedor
+model CashRegister {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  status        CashStatus @default(ABIERTA)
+  openingAmount Float      @default(0)
+  closingAmount Float?     // lo que el vendedor contó al cerrar
+  expectedAmount Float?    // lo que el sistema calculó que debería haber
+  difference    Float?     // closing - expected
+  openingNote   String?
+  closingNote   String?
+  openedAt      DateTime   @default(now())
+  closedAt      DateTime?
+  movements     CashMovement[]
+  sales         Sale[]
+}
+
+// Movimientos de caja (ingresos/egresos manuales)
+model CashMovement {
+  id         String   @id @default(cuid())
+  registerId String
+  register   CashRegister @relation(fields: [registerId], references: [id], onDelete: Cascade)
+  type       String   // INGRESO | EGRESO
+  amount     Float
+  reason     String
+  createdAt  DateTime @default(now())
+}
+
+// Venta (fisica desde POS o registrada desde web)
+model Sale {
+  id           String      @id @default(cuid())
+  code         String      @unique
+  channel      SaleChannel @default(FISICA)
+  status       SaleStatus  @default(COMPLETADA)
+  docType      String      @default("TICKET") // BOLETA | TICKET | NOTA
+  docSerie     String      @default("001")
+  docNumber    String      @default("")
+  customerName String      @default("PÚBLICO GENERAL")
+  customerDoc  String      @default("")
+  subtotal     Float       @default(0)
+  discount     Float       @default(0)
+  tax          Float       @default(0)   // IGV
+  total        Float       @default(0)
+  paymentMethod String     @default("EFECTIVO")
+  received     Float       @default(0)   // monto recibido (efectivo)
+  change       Float       @default(0)   // vuelto
+  couponCode   String?     // cupón aplicado (si hubo)
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+  registerId   String?
+  register     CashRegister? @relation(fields: [registerId], references: [id])
+  createdAt    DateTime    @default(now())
+  items        SaleItem[]
+}
+
+// (5) Solicitudes de reabastecimiento (vendedor → admin)
+model RestockRequest {
+  id          String   @id @default(cuid())
+  productId   String
+  productName String
+  quantity    Int      @default(0)
+  note        String   @default("")
+  status      String   @default("PENDIENTE") // PENDIENTE | ATENDIDA
+  requestedBy String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model SaleItem {
+  id        String  @id @default(cuid())
+  saleId    String
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  total     Float
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  label     String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id               Int    @id @default(1)
+  notifyPhone      String @default("")
+  storeName        String @default("Aroma de Reyes")
+  logoUrl          String @default("/icon.png")
+  notifySound      String @default("/audio.mp3")
+  whatsappToken    String @default("")
+  shippingCost     Float  @default(0)
+  freeShippingFrom Float  @default(165)
+  taxRate          Float  @default(18)   // IGV %
+  currency         String @default("S/")
+  ruc              String @default("")
+  saleSerie        String @default("001")
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Aroma de Reyes - Admin",
+  "short_name": "Aroma Admin",
+  "description": "Panel de administración de Aroma de Reyes",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#0B0B0F",
+  "theme_color": "#C9A24B",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
