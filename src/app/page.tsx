@@ -9,10 +9,18 @@ import ProductCard from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  // Si el usuario ya inició sesión (equipo), lo llevamos a su panel según el rol.
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ tienda?: string }>;
+}) {
+  const params = await searchParams;
+  const verTienda = params?.tienda === "1";
+
+  // Si el usuario ya inició sesión (equipo) y NO pidió ver la tienda,
+  // lo llevamos a su panel según el rol.
   const session = await getServerSession(authOptions);
-  if (session?.user) {
+  if (session?.user && !verTienda) {
     if (session.user.role === "ADMIN") redirect("/panel");
     redirect("/panel/pos"); // vendedor arranca en el Punto de Venta
   }

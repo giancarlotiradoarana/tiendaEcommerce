@@ -140,9 +140,14 @@ export default function AdminNav({ role, userName }: { role: string; userName: s
           </nav>
 
           <div className="mt-5 space-y-2 border-t border-gold/10 pt-4">
-            <Link href="/" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white">
+            <a
+              href="/?tienda=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white"
+            >
               <Globe className="h-4 w-4" /> Ver tienda
-            </Link>
+            </a>
             <button
               onClick={() => signOut({ callbackUrl: "/panel/login" })}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
