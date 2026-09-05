@@ -113,6 +113,25 @@ export default function POSPage() {
     setCart((prev) =>
       prev.map((i) => (i.id === id ? { ...i, quantity: Math.max(1, Math.min(qty, i.stock)) } : i))
     );
+
+  // Permite escribir libremente (incluso dejar vacío mientras se teclea)
+  const setQtyRaw = (id: string, value: string) =>
+    setCart((prev) =>
+      prev.map((i) => {
+        if (i.id !== id) return i;
+        if (value === "") return { ...i, quantity: 0 }; // temporal, se corrige al salir
+        const n = parseInt(value, 10);
+        if (isNaN(n)) return i;
+        return { ...i, quantity: Math.min(n, i.stock) };
+      })
+    );
+
+  // Al salir del campo, si quedó vacío o en 0, lo pone en 1
+  const fixQty = (id: string) =>
+    setCart((prev) =>
+      prev.map((i) => (i.id === id && i.quantity < 1 ? { ...i, quantity: 1 } : i))
+    );
+
   const removeLine = (id: string) => setCart((prev) => prev.filter((i) => i.id !== id));
 
   const gross = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -300,9 +319,13 @@ export default function POSPage() {
                     <tr key={i.id} className="border-t border-white/5">
                       <td className="p-2 text-white">{i.brand} {i.name}</td>
                       <td className="p-2">
-                        <input type="number" min={1} max={i.stock} value={i.quantity}
-                          onChange={(e) => setQty(i.id, parseInt(e.target.value) || 1)}
-                          className="w-14 rounded border border-gold/30 bg-ink px-1 py-1 text-center text-white" />
+                        <input
+                          type="number" min={1} max={i.stock}
+                          value={i.quantity === 0 ? "" : i.quantity}
+                          onChange={(e) => setQtyRaw(i.id, e.target.value)}
+                          onBlur={() => fixQty(i.id)}
+                          onFocus={(e) => e.target.select()}
+                          className="w-16 rounded border border-gold/30 bg-ink px-2 py-1 text-center text-white" />
                       </td>
                       <td className="p-2 text-gray-300">{i.price.toFixed(2)}</td>
                       <td className="p-2 text-gold">{(i.price * i.quantity).toFixed(2)}</td>
