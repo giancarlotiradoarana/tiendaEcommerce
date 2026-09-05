@@ -35,9 +35,11 @@ export default async function AdminLayout({
         <OrderAlert />
         <div className="flex flex-1 flex-col overflow-x-hidden">
           <main className="flex-1 p-6 md:p-8">{children}</main>
-          <footer className="border-t border-gold/10 py-5 text-center text-base italic text-gray-400">
+          <footer className="border-t border-gold/10 px-4 py-4 text-center text-xs italic leading-snug text-gray-400 sm:py-5 sm:text-sm md:text-base">
             Sistema desarrollado por{" "}
-            <span className="font-semibold text-gold">Ing. Giancarlo Tirado Arana</span>
+            <span className="block font-semibold text-gold sm:inline">
+              Ing. Giancarlo Tirado Arana
+            </span>
           </footer>
         </div>
       </div>
