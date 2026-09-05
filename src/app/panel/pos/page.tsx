@@ -8,7 +8,7 @@ interface Prod {
   id: string; name: string; brand: string; sku: string | null;
   price: number; stock: number; imageUrl: string;
 }
-interface CartLine extends Prod { quantity: number }
+interface CartLine extends Prod { quantity: number; capped?: boolean }
 
 const PAYMENTS = ["EFECTIVO", "TARJETA", "YAPE", "PLIN", "TRANSFERENCIA"];
 const DOCS = ["TICKET", "BOLETA", "NOTA"];
@@ -119,10 +119,11 @@ export default function POSPage() {
     setCart((prev) =>
       prev.map((i) => {
         if (i.id !== id) return i;
-        if (value === "") return { ...i, quantity: 0 }; // temporal, se corrige al salir
+        if (value === "") return { ...i, quantity: 0, capped: false }; // temporal, se corrige al salir
         const n = parseInt(value, 10);
         if (isNaN(n)) return i;
-        return { ...i, quantity: Math.min(n, i.stock) };
+        const capped = n > i.stock; // pidió más de lo disponible
+        return { ...i, quantity: Math.min(n, i.stock), capped };
       })
     );
 
@@ -325,7 +326,14 @@ export default function POSPage() {
                           onChange={(e) => setQtyRaw(i.id, e.target.value)}
                           onBlur={() => fixQty(i.id)}
                           onFocus={(e) => e.target.select()}
-                          className="w-16 rounded border border-gold/30 bg-ink px-2 py-1 text-center text-white" />
+                          className={`w-16 rounded border bg-ink px-2 py-1 text-center text-white ${
+                            i.capped ? "border-red-500" : "border-gold/30"
+                          }`} />
+                        {i.capped && (
+                          <p className="mt-1 text-[10px] leading-tight text-red-400">
+                            Máx: {i.stock} en stock
+                          </p>
+                        )}
                       </td>
                       <td className="p-2 text-gray-300">{i.price.toFixed(2)}</td>
                       <td className="p-2 text-gold">{(i.price * i.quantity).toFixed(2)}</td>
