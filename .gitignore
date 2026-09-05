@@ -3,3 +3,12 @@ node_modules
 
 # Build de Next.js (se regenera con "npm run build")
 .next
+
+# Variables de entorno (van en Vercel, no en el repo)
+.env
+.env.local
+
+# Base de datos local SQLite (ya no se usa; ahora es PostgreSQL en la nube)
+*.db
+*.db-journal
+prisma/dev.db
