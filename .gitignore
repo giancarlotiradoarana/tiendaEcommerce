@@ -1,3 +1,8 @@
-# Solo se ignora node_modules (se reinstala con "npm install").
-# Todo lo demas se sube al repositorio (uso personal, privado).
+# Dependencias (se reinstalan con "npm install")
 node_modules
+
+# Build de Next.js (se regenera con "npm run build", no aporta al repo)
+.next
+
+# Todo lo demas SI se sube al repositorio (uso personal, privado):
+# .env, prisma/dev.db, uploads, codigo fuente, etc.
