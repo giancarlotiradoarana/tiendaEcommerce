@@ -11,6 +11,7 @@ import ProductRow from "@/components/ProductRow";
 import Testimonios from "@/components/Testimonios";
 import WhatsappFloat from "@/components/WhatsappFloat";
 import GoldParticles from "@/components/GoldParticles";
+import HeroVideo from "@/components/HeroVideo";
 
 export const dynamic = "force-dynamic";
 
@@ -79,10 +80,9 @@ export default async function Home({
       <section className="relative flex min-h-[85vh] items-center overflow-hidden border-b border-gold/10">
         {/* Fondo: video si está configurado, si no imagen con zoom lento */}
         {heroVideo ? (
-          <video
+          <HeroVideo
             src={heroVideo}
-            className="absolute inset-0 h-full w-full object-cover brightness-110 contrast-105"
-            autoPlay muted loop playsInline
+            poster="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1600&q=80"
           />
         ) : (
           <div
