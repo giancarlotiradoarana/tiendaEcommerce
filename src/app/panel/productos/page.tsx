@@ -21,13 +21,15 @@ interface Product {
   lowStock: number;
   imageUrl: string;
   featured: boolean;
+  isNew: boolean;
+  isBestSeller: boolean;
   active: boolean;
 }
 
 const empty = {
   name: "", brand: "", sku: "", description: "", notes: "", gender: "Unisex",
   cost: "", price: "", compareAt: "", stock: "", lowStock: "3", imageUrl: "",
-  featured: false, active: true,
+  featured: false, isNew: false, isBestSeller: false, active: true,
 };
 
 export default function ProductosPage() {
@@ -56,7 +58,7 @@ export default function ProductosPage() {
       name: p.name, brand: p.brand, sku: p.sku || "", description: p.description, notes: p.notes,
       gender: p.gender, cost: String(p.cost ?? ""), price: String(p.price), compareAt: p.compareAt ? String(p.compareAt) : "",
       stock: String(p.stock), lowStock: String(p.lowStock), imageUrl: p.imageUrl,
-      featured: p.featured, active: p.active,
+      featured: p.featured, isNew: p.isNew, isBestSeller: p.isBestSeller, active: p.active,
     });
     setEditing(p.id); setError(""); setModal(true);
   };
@@ -268,7 +270,19 @@ export default function ProductosPage() {
                 <input type="checkbox" checked={form.active as boolean} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
                 Activo (visible)
               </label>
+              <label className="flex items-center gap-2 text-sm text-gray-300">
+                <input type="checkbox" checked={form.isNew as boolean} onChange={(e) => setForm({ ...form, isNew: e.target.checked })} />
+                Mostrar en <b className="text-gold">Novedades</b>
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-300">
+                <input type="checkbox" checked={form.isBestSeller as boolean} onChange={(e) => setForm({ ...form, isBestSeller: e.target.checked })} />
+                Mostrar en <b className="text-gold">Más vendidos</b>
+              </label>
             </div>
+            <p className="mt-2 text-xs text-gray-500">
+              💡 Deja estas casillas sin marcar para que la tienda las llene automáticamente
+              (novedades por fecha, más vendidos por ventas reales).
+            </p>
             <div className="mt-6 flex gap-3">
               <button onClick={save} className="btn-gold flex-1 rounded-xl py-2.5">Guardar</button>
               <button onClick={() => setModal(false)} className="flex-1 rounded-xl gold-border py-2.5 text-gold">Cancelar</button>

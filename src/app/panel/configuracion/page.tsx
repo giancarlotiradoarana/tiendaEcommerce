@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import PushManager from "@/components/PushManager";
 import LogoUploader from "@/components/LogoUploader";
 import SoundUploader from "@/components/SoundUploader";
+import HeroVideoUploader from "@/components/HeroVideoUploader";
 
 export default function ConfiguracionPage() {
   const [form, setForm] = useState({
@@ -14,6 +15,7 @@ export default function ConfiguracionPage() {
   });
   const [logoUrl, setLogoUrl] = useState("/icon.png");
   const [notifySound, setNotifySound] = useState("/audio.mp3");
+  const [heroVideo, setHeroVideo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +32,7 @@ export default function ConfiguracionPage() {
         });
         setLogoUrl(d.logoUrl || "/icon.png");
         setNotifySound(d.notifySound || "/audio.mp3");
+        setHeroVideo(d.heroVideo || "");
         setLoading(false);
       });
   }, []);
@@ -58,6 +61,10 @@ export default function ConfiguracionPage() {
 
       <div className="mb-6">
         <SoundUploader current={notifySound} />
+      </div>
+
+      <div className="mb-6">
+        <HeroVideoUploader current={heroVideo} />
       </div>
 
       {saved && (

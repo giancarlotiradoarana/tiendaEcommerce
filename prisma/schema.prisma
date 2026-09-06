@@ -74,6 +74,8 @@ model Product {
   lowStock    Int         @default(3)
   imageUrl    String
   featured    Boolean     @default(false)
+  isNew       Boolean     @default(false)   // etiqueta manual: Novedad
+  isBestSeller Boolean    @default(false)   // etiqueta manual: Más vendido
   active      Boolean     @default(true)
   categoryId  String?
   category    Category?   @relation(fields: [categoryId], references: [id])
@@ -252,6 +254,18 @@ model Sale {
   items        SaleItem[]
 }
 
+// Evidencias de clientes (fotos de clientes con sus compras) — administrable
+model Testimonial {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  mediaType String   @default("image") // "image" | "video"
+  customer  String   @default("")
+  caption   String   @default("")
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 // (5) Solicitudes de reabastecimiento (vendedor → admin)
 model RestockRequest {
   id          String   @id @default(cuid())
@@ -291,6 +305,7 @@ model Setting {
   storeName        String @default("Aroma de Reyes")
   logoUrl          String @default("/icon.png")
   notifySound      String @default("/audio.mp3")
+  heroVideo        String @default("")
   whatsappToken    String @default("")
   shippingCost     Float  @default(0)
   freeShippingFrom Float  @default(165)

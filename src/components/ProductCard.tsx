@@ -27,7 +27,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="relative aspect-square overflow-hidden bg-ink-soft">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={product.imageUrl}
+          src={product.imageUrl || "/icon.png"}
           alt={`${product.brand} ${product.name}`}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />

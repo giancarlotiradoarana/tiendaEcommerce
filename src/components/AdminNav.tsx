@@ -7,7 +7,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, ScanLine, Wallet, Receipt, Bell, SprayCan,
   BarChart3, Archive, Users, Settings, Crown, Globe, LogOut,
-  Truck, PackagePlus, ClipboardList, Contact, Ticket, Tags,
+  Truck, PackagePlus, ClipboardList, Contact, Ticket, Tags, ImagePlus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -55,6 +55,7 @@ const groups: { title: string; links: NavLink[] }[] = [
     links: [
       { href: "/panel/clientes", label: "Clientes", icon: Contact, roles: ["ADMIN"] },
       { href: "/panel/cupones", label: "Cupones", icon: Ticket, roles: ["ADMIN"] },
+      { href: "/panel/evidencias", label: "Evidencias", icon: ImagePlus, roles: ["ADMIN"] },
     ],
   },
   {

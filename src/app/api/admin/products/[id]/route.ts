@@ -28,6 +28,8 @@ export async function PUT(
         lowStock: parseInt(data.lowStock) || 3,
         imageUrl: data.imageUrl,
         featured: !!data.featured,
+        isNew: !!data.isNew,
+        isBestSeller: !!data.isBestSeller,
         active: data.active !== false,
       },
     });
